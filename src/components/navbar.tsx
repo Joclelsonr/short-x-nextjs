@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import Link from "next/link";
 
 import {
@@ -14,22 +13,9 @@ import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { BarChart3, Link2, LogOut, User } from "lucide-react";
 
-import { MockAPI } from "@/lib/mock-data";
-
 export function Navbar() {
-  const [user, setUser] = useState<any>(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    const user = MockAPI.getCurrentUser();
-    setUser(user);
-  }, []);
-
-  const handleSignOut = async () => {
-    await MockAPI.signOut();
-    setUser(null);
-    router.push("/");
-  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [user] = useState<any>(null);
 
   return (
     <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -70,7 +56,7 @@ export function Navbar() {
                       </p>
                     </div>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleSignOut}>
+                  <DropdownMenuItem>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Sair</span>
                   </DropdownMenuItem>

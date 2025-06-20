@@ -14,7 +14,7 @@ import { UrlShortenerForm } from "@/components/url-shortener-form";
 import { BarChart3, Link2, Shield, Zap } from "lucide-react";
 
 export default function Home() {
-  const [user, setUser] = useState(null);
+  const [user] = useState(null);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
