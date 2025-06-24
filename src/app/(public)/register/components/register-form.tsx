@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 
 import { registerSchema, RegisterSchema } from "../schema";
 import { API_URL } from "@/constants";
+import { InputPassword } from "@/components/input-password";
 
 export function RegisterForm() {
   const form = useForm<RegisterSchema>({
@@ -44,7 +45,9 @@ export function RegisterForm() {
       redirect("/login");
     } else {
       const errorData = await response.json();
-      toast.error(errorData.message || "Erro ao cadastrar usuário");
+      toast.error(
+        errorData.message || errorData.message[0] || "Erro ao cadastrar usuário"
+      );
     }
   }
 
@@ -79,21 +82,9 @@ export function RegisterForm() {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Senha</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="********" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <InputPassword<RegisterSchema> control={form.control} name="password" />
 
-        <Button type="submit">
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? "Cadastrando..." : "Cadastrar"}
         </Button>
       </form>
