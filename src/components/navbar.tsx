@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { redirect } from "next/navigation";
+import { toast } from "sonner";
+import Cookies from "js-cookie";
 import Link from "next/link";
 
 import {
@@ -11,11 +13,28 @@ import {
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
-import { BarChart3, Link2, LogOut, User } from "lucide-react";
+import { BarChart3, Link2, LogOut, User as UserIcon } from "lucide-react";
+import { User } from "@/types";
 
 export function Navbar() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [user] = useState<any>(null);
+  const userCookie = Cookies.get("user");
+  const user: User | undefined = userCookie
+    ? JSON.parse(userCookie)
+    : undefined;
+
+  const handleLogout = async () => {
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok) {
+      redirect("/login");
+    } else {
+      toast.error("Erro ao sair. Tente novamente.");
+    }
+  };
 
   return (
     <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -49,14 +68,14 @@ export function Navbar() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuItem className="font-normal">
-                    <User className="mr-2 h-4 w-4" />
+                    <UserIcon className="mr-2 h-4 w-4" />
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">
                         {user.email}
                       </p>
                     </div>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Sair</span>
                   </DropdownMenuItem>
