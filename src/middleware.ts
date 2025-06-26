@@ -12,9 +12,7 @@ export function middleware(request: NextRequest) {
   });
 
   const pathname = request.nextUrl.pathname;
-  const isShortCodeRoute = /^\/[a-zA-Z0-9]{5,}$/.test(pathname);
-  const publicRoute =
-    ["/", "/login", "/register"].includes(pathname) || isShortCodeRoute;
+  const publicRoute = ["/", "/login", "/register"].includes(pathname);
   const tokens = sessionTokenDevelop || sessionTokenProduction;
 
   if (!tokens && publicRoute) {
