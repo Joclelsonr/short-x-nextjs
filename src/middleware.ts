@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const publicRoutes = ["/", "/login", "/register"];
-
 export function middleware(request: NextRequest) {
   const sessionTokenDevelop = request.cookies.get("auth-token");
   const sessionTokenProduction = request.cookies.get(
@@ -14,7 +12,9 @@ export function middleware(request: NextRequest) {
   });
 
   const pathname = request.nextUrl.pathname;
-  const publicRoute = publicRoutes.includes(pathname);
+  const isShortCodeRoute = /^\/[a-zA-Z0-9]{5,}$/.test(pathname);
+  const publicRoute =
+    ["/", "/login", "/register"].includes(pathname) || isShortCodeRoute;
   const tokens = sessionTokenDevelop || sessionTokenProduction;
 
   if (!tokens && publicRoute) {
