@@ -1,7 +1,6 @@
-"use client";
-
 import Link from "next/link";
-import { useState } from "react";
+import { useUserFromCookie } from "@/hooks/use-user-cookie";
+
 import {
   Card,
   CardContent,
@@ -9,17 +8,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Navbar } from "@/components/navbar";
 import { UrlShortenerForm } from "@/components/url-shortener-form";
 import { BarChart3, Link2, Shield, Zap } from "lucide-react";
+import { Navbar } from "@/components/navbar";
 
 export default function Home() {
-  const [user] = useState(null);
+  const user = useUserFromCookie();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div>
       <Navbar />
-
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           {/* Hero Section */}
@@ -36,7 +34,7 @@ export default function Home() {
 
           {/* URL Shortener Form */}
           <div className="mb-16">
-            <UrlShortenerForm />
+            <UrlShortenerForm user={user} />
           </div>
 
           {/* Features */}
@@ -91,7 +89,7 @@ export default function Home() {
             </Card>
           </div>
 
-          {!user && (
+          {user && (
             <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl mb-2">
