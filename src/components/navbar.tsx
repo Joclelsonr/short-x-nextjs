@@ -2,7 +2,6 @@
 
 import { redirect } from "next/navigation";
 import { toast } from "sonner";
-import Cookies from "js-cookie";
 import Link from "next/link";
 
 import {
@@ -14,23 +13,16 @@ import {
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { BarChart3, Link2, LogOut, User as UserIcon } from "lucide-react";
-import { User } from "@/types";
+
+import { useUserFromCookie } from "@/hooks/use-user-cookie";
 
 export function Navbar() {
-  const userCookie = Cookies.get("user");
-  const user: User | undefined = userCookie
-    ? JSON.parse(userCookie)
-    : undefined;
+  const user = useUserFromCookie();
 
   const handleLogout = async () => {
-    const response = await fetch("/api/auth/logout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch("/api/auth/logout", { method: "POST" });
     if (response.ok) {
-      redirect("/login");
+      redirect("/");
     } else {
       toast.error("Erro ao sair. Tente novamente.");
     }
