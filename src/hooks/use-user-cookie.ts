@@ -1,6 +1,8 @@
+"use client";
+
 import { useMemo } from "react";
-import Cookies from "js-cookie";
 import { User } from "@/types";
+import Cookies from "js-cookie";
 
 export function useUserFromCookie(): User | undefined {
   return useMemo(() => {
