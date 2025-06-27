@@ -1,5 +1,5 @@
+import { cookies } from "next/headers";
 import Link from "next/link";
-import { useUserFromCookie } from "@/hooks/use-user-cookie";
 
 import {
   Card,
@@ -12,8 +12,10 @@ import { UrlShortenerForm } from "@/components/url-shortener-form";
 import { BarChart3, Link2, Shield, Zap } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 
-export default function Home() {
-  const user = useUserFromCookie();
+export default async function Home() {
+  const cookieStore = await cookies();
+  const userCookie = cookieStore.get("user");
+  const user = userCookie ? JSON.parse(userCookie.value) : null;
 
   return (
     <div>
@@ -89,7 +91,7 @@ export default function Home() {
             </Card>
           </div>
 
-          {user && (
+          {!user && (
             <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl mb-2">
