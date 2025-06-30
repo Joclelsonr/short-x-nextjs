@@ -5,7 +5,6 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -31,28 +30,32 @@ import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { CalendarIcon, Copy, QrCode, Settings } from "lucide-react";
+import { CalendarIcon, Copy, LoaderIcon, Settings } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { API_URL, BASE_URL } from "@/constants";
+import { REDIRECT_URL } from "@/constants";
+import { User } from "@/types";
 
 export const urlSchema = z.object({
   url: z.string().url("URL inválida").min(1, "URL é obrigatória"),
+  title: z.string().optional(),
+  description: z.string().optional(),
+  expiresAt: z
+    .date()
+    .optional()
+    .refine((date) => !date || date > new Date(), {
+      message: "A data de expiração deve ser no futuro",
+    }),
 });
 
 export type UrlSchema = z.infer<typeof urlSchema>;
 
 interface UrlShortenerFormProps {
-  user?: unknown;
+  user?: User;
 }
 
 export function UrlShortenerForm({ user }: UrlShortenerFormProps) {
-  const [customCode, setCustomCode] = useState("");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [expiresAt, setExpiresAt] = useState<Date>();
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [shortenedUrl, setShortenedUrl] = useState("");
-  const [qrCodeUrl, setQrCodeUrl] = useState("");
 
   const form = useForm<UrlSchema>({
     resolver: zodResolver(urlSchema),
@@ -63,22 +66,17 @@ export function UrlShortenerForm({ user }: UrlShortenerFormProps) {
   const isSubmitting = form.formState.isSubmitting;
 
   const handleSubmit = async (values: UrlSchema) => {
-    console.log("Form values:", values);
-
-    const response = await fetch(`${API_URL}/urls/shorten`, {
+    const response = await fetch("api/url", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url: values.url }),
     });
     if (response.ok) {
       const data = await response.json();
-      console.log("Shortened URL response:", data);
-      setShortenedUrl(`${BASE_URL}/${data.shortCode}`);
-      setQrCodeUrl(data.qrCodeUrl);
+      setShortenedUrl(`${REDIRECT_URL}/${data.shortCode}`);
       form.reset();
     } else {
       const errorData = await response.json();
-      console.error("Error shortening URL:", errorData);
       toast.error(errorData.message || "Erro ao encurtar URL");
     }
   };
@@ -140,83 +138,101 @@ export function UrlShortenerForm({ user }: UrlShortenerFormProps) {
                       Opções avançadas
                     </Label>
                   </TooltipTrigger>
-                  <TooltipContent></TooltipContent>
+                  <TooltipContent>
+                    <p>
+                      Para usuários registrados: personalize seu link, adicione
+                      título, descrição e defina uma data de expiração.
+                    </p>
+                  </TooltipContent>
                 </Tooltip>
               </div>
 
               {showAdvanced && (
                 <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
                   <div className="space-y-2">
-                    <Label htmlFor="custom">
-                      Código personalizado (opcional)
-                    </Label>
-                    <Input
-                      id="custom"
-                      placeholder="meu-link"
-                      value={customCode}
-                      onChange={(e) =>
-                        setCustomCode(
-                          e.target.value
-                            .toLowerCase()
-                            .replace(/[^a-z0-9-]/g, "")
-                        )
-                      }
-                    />
-                    <p className="text-sm text-muted-foreground">
-                      Deixe vazio para gerar automaticamente
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Título (opcional)</Label>
-                    <Input
-                      id="title"
-                      placeholder="Título da sua URL"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Título (opcional)</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Título da sua URL" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="description">Descrição (opcional)</Label>
-                    <Textarea
-                      id="description"
-                      placeholder="Descrição da sua URL"
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Descrição (opcional)</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Descrição da sua URL"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Data de expiração (opcional)</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full justify-start text-left font-normal"
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {expiresAt
-                            ? format(expiresAt, "PPP", { locale: ptBR })
-                            : "Selecionar data"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={expiresAt}
-                          onSelect={setExpiresAt}
-                          disabled={(date) => date < new Date()}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <FormField
+                      control={form.control}
+                      name="expiresAt"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Data de expiração (opcional)</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  className="w-full justify-start text-left font-normal bg-muted/50"
+                                >
+                                  <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
+                                  {field.value
+                                    ? format(field.value, "PPP", {
+                                        locale: ptBR,
+                                      })
+                                    : "Selecionar data"}
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="start"
+                            >
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                disabled={(date) => date <= new Date()}
+                                locale={ptBR}
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </div>
               )}
 
               <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? "Encurtando..." : "Encurtar URL"}
+                {isSubmitting ? (
+                  <LoaderIcon className="animate-spin h-5 w-5" />
+                ) : (
+                  "Encurtar URL"
+                )}
               </Button>
             </form>
           </Form>
@@ -237,7 +253,7 @@ export function UrlShortenerForm({ user }: UrlShortenerFormProps) {
               </Button>
             </div>
 
-            {qrCodeUrl && (
+            {/* {qrCodeUrl && (
               <div className="flex flex-col items-center space-y-2">
                 <Label className="flex items-center gap-2">
                   <QrCode className="h-4 w-4" />
@@ -249,7 +265,7 @@ export function UrlShortenerForm({ user }: UrlShortenerFormProps) {
                   className="border rounded"
                 />
               </div>
-            )}
+            )} */}
           </CardContent>
         </Card>
       )}
