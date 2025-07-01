@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export function middleware(request: NextRequest) {
   const sessionTokenDevelop = request.cookies.get("auth-token");
   const sessionTokenProduction = request.cookies.get(
-    "__Secure-authjs.session-token"
+    "__Secure-authjs.auth-token"
   );
 
   console.log({
@@ -12,6 +12,7 @@ export function middleware(request: NextRequest) {
   });
 
   const pathname = request.nextUrl.pathname;
+  const isRedirectRoute = pathname.startsWith("/redirect/");
   const publicRoute = ["/", "/login", "/register"].includes(pathname);
   const tokens = sessionTokenDevelop || sessionTokenProduction;
 
@@ -19,7 +20,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (!tokens && !publicRoute) {
+  if (!tokens && !publicRoute && !isRedirectRoute) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
     return NextResponse.redirect(redirectUrl);
