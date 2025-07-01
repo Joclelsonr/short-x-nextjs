@@ -26,7 +26,7 @@ export default async function Home() {
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl mb-6">
               Encurte suas URLs
-              <span className="text-blue-600"> instantaneamente</span>
+              <span className="text-blue-600"> Instantaneamente</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
               Transforme links longos em URLs curtas e elegantes. Acompanhe
@@ -103,7 +103,7 @@ export default async function Home() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
-                <div className="space-x-4">
+                <div className="space-y-4 md:space-x-4">
                   <Link
                     href="/register"
                     className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50 transition-colors"

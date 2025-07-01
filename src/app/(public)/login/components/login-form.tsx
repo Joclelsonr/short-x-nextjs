@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { InputPassword } from "@/components/input-password";
 import { loginSchema, LoginSchema } from "../schema";
-import { BASE_URL } from "@/constants";
+import { LoaderIcon } from "lucide-react";
 
 export function LoginForm() {
   const form = useForm<LoginSchema>({
@@ -31,7 +31,7 @@ export function LoginForm() {
   const isSubmitting = form.formState.isSubmitting;
 
   async function onSubmit(values: LoginSchema) {
-    const response = await fetch(`${BASE_URL}/api/auth/login`, {
+    const response = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(values),
@@ -66,7 +66,11 @@ export function LoginForm() {
         <InputPassword<LoginSchema> control={form.control} name="password" />
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Entrando..." : "Entrar"}
+          {isSubmitting ? (
+            <LoaderIcon className="animate-spin h-5 w-5" />
+          ) : (
+            "Entrar"
+          )}
         </Button>
       </form>
     </Form>

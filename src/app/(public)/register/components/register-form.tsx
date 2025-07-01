@@ -13,12 +13,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { LoaderIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
+import { InputPassword } from "@/components/input-password";
 import { registerSchema, RegisterSchema } from "../schema";
 import { API_URL } from "@/constants";
-import { InputPassword } from "@/components/input-password";
 
 export function RegisterForm() {
   const form = useForm<RegisterSchema>({
@@ -85,7 +85,11 @@ export function RegisterForm() {
         <InputPassword<RegisterSchema> control={form.control} name="password" />
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Cadastrando..." : "Cadastrar"}
+          {isSubmitting ? (
+            <LoaderIcon className="animate-spin h-5 w-5" />
+          ) : (
+            "Cadastrar"
+          )}
         </Button>
       </form>
     </Form>
